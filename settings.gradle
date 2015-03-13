@@ -1,0 +1,2 @@
+include ':framework'
+include 'desktop', 'android', 'ios', 'html', 'core', ':gdx-rube'
