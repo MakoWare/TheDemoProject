@@ -1,7 +1,5 @@
 package com.makoware.framework.GUI.Camera;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Matrix4;
@@ -9,7 +7,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pools;
-import com.makoware.framework.Core.PositionVectorComponent;
 
 /**
  * Created by Derek Arner on 2/26/15.
@@ -23,7 +20,7 @@ public class MWCamera extends OrthographicCamera {
     private float rightPad;
 
     private boolean doChase;
-    private Entity chaseEnt;
+//    private Entity chaseEnt;
 
     private float mBoundsXMin;
     private float mBoundsXMax;
@@ -38,7 +35,7 @@ public class MWCamera extends OrthographicCamera {
 
     private boolean doMario;
 
-    private ComponentMapper<PositionVectorComponent> pvc = ComponentMapper.getFor(PositionVectorComponent.class);
+//    private ComponentMapper<PositionVectorComponent> pvc = ComponentMapper.getFor(PositionVectorComponent.class);
 
     public MWCamera(){
         super();
@@ -49,19 +46,20 @@ public class MWCamera extends OrthographicCamera {
         bounded = false;
     }
 
-    public MWCamera(float worldUnitWidth){
+    public MWCamera(float worldUnit){
         this();
-        this.setWorldUnitWidth(worldUnitWidth);
+        this.setWorldUnit(worldUnit);
     }
 
 
-
+    /*
     public void setChaseEntity(Entity ent) {
         if(ent==null)
             setChaseEnable(false);
         else
             this.chaseEnt = ent;
     }
+    */
 
     public void setChaseEnable(boolean doChase) {
         this.doChase = doChase;
@@ -84,7 +82,8 @@ public class MWCamera extends OrthographicCamera {
     public void onUpdate(){
 
         if(doChase){
-            Vector2 pos = pvc.get(chaseEnt).position;
+            Vector2 pos = null;
+//            pos = pvc.get(chaseEnt).position;
 
 
 //			Gdx.app.log(tag, "x="+pos.x+" y="+pos.y);
@@ -237,7 +236,7 @@ public class MWCamera extends OrthographicCamera {
 	 */
 
     private CustomResize customResize;
-    private float worldUnitWidth = 10;
+    private float worldUnit = 10;
     private boolean worldYDown = false;
 
     public interface CustomResize {
@@ -252,9 +251,9 @@ public class MWCamera extends OrthographicCamera {
             float w = width;
             float h = height;
             if(width <= height)
-                this.setToOrtho(this.worldYDown, worldUnitWidth, worldUnitWidth*(h/w));
+                this.setToOrtho(this.worldYDown, worldUnit, worldUnit *(h/w));
             else
-                this.setToOrtho(this.worldYDown, worldUnitWidth * (w / h), worldUnitWidth);
+                this.setToOrtho(this.worldYDown, worldUnit * (w / h), worldUnit);
         }
         this.onUpdate();
     }
@@ -272,8 +271,8 @@ public class MWCamera extends OrthographicCamera {
         this.resize();
     }
 
-    public void setWorldUnitWidth(float unit){
-        this.worldUnitWidth = unit;
+    public void setWorldUnit(float unit){
+        this.worldUnit = unit;
         this.resize();
     }
 

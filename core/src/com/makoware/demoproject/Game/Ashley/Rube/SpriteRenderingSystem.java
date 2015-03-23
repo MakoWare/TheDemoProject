@@ -32,4 +32,5 @@ public class SpriteRenderingSystem extends IteratingSystem {
         spriteComponent.sprite.draw(batch);
         batch.end();
     }
+
 }

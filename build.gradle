@@ -110,6 +110,7 @@ project(":core") {
     dependencies {
         compile project(':gdx-rube')
         compile project(':framework')
+        compile project(':framework-ashley')
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         compile "com.badlogicgames.ashley:ashley:$ashleyVersion"

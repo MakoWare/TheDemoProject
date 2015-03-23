@@ -1,4 +1,4 @@
-package com.makoware.framework.Core;
+package com.makoware.framework.Ashley.Core;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.math.Vector2;

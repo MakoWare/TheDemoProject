@@ -1,7 +1,8 @@
-package com.makoware.framework.Input;
+package com.makoware.framework.Input.Methods;
 
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.controllers.ControllerListener;
+import com.makoware.framework.Input.Handlers.InputHandler;
 
 /**
  * Implement this class to create an input processor based on the platform and use

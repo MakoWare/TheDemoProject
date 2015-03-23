@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.rube.RubeImage;
 import com.badlogic.gdx.rube.RubeScene;
 import com.badlogic.gdx.rube.graphics.g2d.RubeSprite;
-import com.badlogic.gdx.utils.Array;
 import com.makoware.framework.Core.GameManager;
 
 /**
@@ -20,13 +19,11 @@ public class AshleyRubeScene extends RubeScene {
 
     public static String filePath = "data/";
 
-    protected Array<Entity> entities;
     protected Engine engine;
 
     public AshleyRubeScene() {
         super();
 
-        this.entities = new Array<Entity>(false, 16);
         this.engine = new Engine();
     }
 
@@ -43,20 +40,19 @@ public class AshleyRubeScene extends RubeScene {
             if(this.usesAtlas()){
                 Gdx.app.log(tag, "UsesAtlas");
             } else {
-                Gdx.app.log(tag, "image " + image.file);
+//                Gdx.app.log(tag, "image " + image.file);
 
                 AssetManager am = GameManager.getAssetManager();
 
-                AshleyRubeEntity ent = new AshleyRubeEntity();
+                Entity ent = new Entity();
 
                 Sprite sprite = new RubeSprite(am.get(filePath + image.file, Texture.class),image);
                 ent.add(new SpriteComponent(sprite));
 
                 if(image.body != null){
-                    ent.add(new Box2DComponent(image.body));
+                    ent.add(new BodyComponent(image.body));
                 }
 
-                entities.add(ent);
                 engine.addEntity(ent);
             }
         }

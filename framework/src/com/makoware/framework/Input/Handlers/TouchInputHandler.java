@@ -1,4 +1,4 @@
-package com.makoware.framework.Input;
+package com.makoware.framework.Input.Handlers;
 
 public interface TouchInputHandler extends InputHandler {
 

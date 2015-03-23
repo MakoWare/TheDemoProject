@@ -1,2 +1,2 @@
-include ':framework'
+include ':framework', ':framework-ashley'
 include 'desktop', 'android', 'ios', 'html', 'core', ':gdx-rube'

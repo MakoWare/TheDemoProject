@@ -1,7 +1,5 @@
 package com.makoware.framework.Utils;
 
 public interface Callback {
-	
-	public void call(Message m);
-
+	public void call(String keyName, Message m);
 }

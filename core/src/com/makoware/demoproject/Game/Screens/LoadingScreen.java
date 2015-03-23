@@ -27,7 +27,6 @@ public class LoadingScreen extends ScreenAdapter {
 
         this.level = new LevelScreen(this.filePath);
 
-
     }
 
     public LoadingScreen(String filePath, float timeToWait){
@@ -45,11 +44,11 @@ public class LoadingScreen extends ScreenAdapter {
 
         if(!this.am.update() || totalWaitTime<=timeToWait){
             // TODO: present loading view
-            Gdx.app.log(tag, "loading... "+totalWaitTime);
+//            Gdx.app.log(tag, "loading... "+totalWaitTime);
             return;
         } else {
             // get the loaded screen
-            Gdx.app.log(tag, "COMPLETE!");
+//            Gdx.app.log(tag, "COMPLETE!");
             GameManager.setScreen(level);
         }
     }

@@ -1,4 +1,4 @@
-package com.makoware.framework.GUI.Camera;
+package com.makoware.framework.Ashley.GUI.Camera;
 
 import com.badlogic.ashley.core.Entity;
 

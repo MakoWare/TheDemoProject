@@ -1,6 +1,7 @@
 package com.makoware.demoproject.Game.Screens;
 
 import com.badlogic.ashley.core.Engine;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
@@ -11,9 +12,18 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.makoware.demoproject.Game.Ashley.Rube.AshleyRubeScene;
+import com.makoware.demoproject.Game.Ashley.Rube.SpriteComponent;
 import com.makoware.demoproject.Game.Ashley.Rube.SpriteRenderingSystem;
+import com.makoware.demoproject.Game.Stuff.PauseMenu;
+import com.makoware.framework.Ashley.Box2D.Box2DSystem;
+import com.makoware.framework.Ashley.GUI.Hud.HudSystem;
+import com.makoware.framework.Ashley.GUI.View.Box2DDebugRenderingSystem;
 import com.makoware.framework.Core.GameManager;
+import com.makoware.framework.Core.Messenger;
 import com.makoware.framework.GUI.Camera.MWCamera;
+import com.makoware.framework.Input.Handlers.Adapters.InputHandlerAdapter;
+import com.makoware.framework.Input.Handlers.Adapters.TouchInputHandlerAdapter;
+import com.makoware.framework.Input.Utils.Inputs;
 
 /**
  * Created by Derek Arner on 3/2/15.
@@ -31,24 +41,71 @@ public class LevelScreen extends ScreenAdapter {
 
     private AshleyRubeScene scene;
 
+    // systems
     private SpriteRenderingSystem renderingSystem;
+    private HudSystem hudSystem;
+    private Box2DSystem b2dSystem;
+
+    private TouchInputHandlerAdapter input;
 
     SpriteBatch batch;
     Texture img;
 
     public LevelScreen(String filePath) {
-        super();
         this.levelFilePath = filePath;
         this.rend = new Box2DDebugRenderer();
-        this.cam = new MWCamera(100f);
+        this.cam = new MWCamera(10f);
 
         this.assetManager = GameManager.getAssetManager();
         this.assetManager.load(this.levelFilePath, AshleyRubeScene.class, new RubeSceneLoadedCallback());
 
-        batch = new SpriteBatch();
+        this.batch = new SpriteBatch();
 //        img = new Texture("badlogic.jpg");
 
+        // init systems
         this.renderingSystem = new SpriteRenderingSystem(cam, batch);
+        this.hudSystem = new HudSystem(cam, batch);
+        this.hudSystem.addOverlay("pause", new PauseMenu());
+
+
+        this.input = new TouchInputHandlerAdapter();
+        GameManager.pushInputHandler(this.input);
+
+        this.input.addCallback(Inputs.MENU, new InputHandlerAdapter.InputCallback() {
+            @Override
+            public void action(Inputs.KeyDirection direction) {
+                if(direction== Inputs.KeyDirection.DOWN){
+                    LevelScreen.this.hudSystem.show("pause");
+                }
+            }
+        });
+
+    }
+
+    @Override
+    public void show() {
+        super.show();
+        Gdx.app.log("levelScreen", "show");
+
+        this.scene = this.assetManager.get(this.levelFilePath, AshleyRubeScene.class);
+        this.world = this.scene.getWorld();
+        this.engine = this.scene.getEngine();
+
+        this.cam.setWorldUnit(100f);
+
+        this.engine.addSystem((this.b2dSystem=new Box2DSystem(this.world)));
+        this.engine.addSystem(this.renderingSystem);
+        this.engine.addSystem(this.hudSystem);
+        this.engine.addSystem(new Box2DDebugRenderingSystem(this.world,this.cam));
+
+        this.img = this.assetManager.get("data/images/toyzrockinghorse.png",Texture.class);
+        Entity ent = new Entity();
+        SpriteComponent sc = new SpriteComponent(this.img);
+        sc.sprite.setPosition(120, 50);
+        sc.sprite.setSize(20, 20);
+        ent.add(sc);
+        this.engine.addEntity(ent);
+
 
     }
 
@@ -58,20 +115,11 @@ public class LevelScreen extends ScreenAdapter {
         Gdx.gl.glClearColor(0f, 0f, 0f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-//        batch.setProjectionMatrix(this.cam.combined);
-//        batch.begin();
-//        batch.draw(img,120f,60f,20f,20f);
-//        batch.end();
 
-//        Gdx.app.log("levelScreen","render");
-
-        // while loading, present loading overlay
-
-
-        this.world.step(delta,6,2);
         this.engine.update(delta);
 
-//        this.rend.render(this.world,this.cam.combined);
+
+
         this.cam.onUpdate();
     }
 
@@ -79,27 +127,13 @@ public class LevelScreen extends ScreenAdapter {
     public void resize(int width, int height) {
         super.resize(width, height);
         Gdx.app.log("levelScreen","resize");
-        cam.resize(width,height);
 
-//		fontMatrix.setToOrtho2D(0, 0, width, height);
-//        this.cam.setMarioStyle(true);
-//        cam.calculateParallaxMatrix(0.2f, 0.2f);
+        this.cam.resize(width,height);
+        this.hudSystem.resize(width,height);
 
-        cam.onUpdate();
-    }
+        Messenger.postMessage(Messenger.RESIZE_KEY,null);
 
-    @Override
-    public void show() {
-        super.show();
-        Gdx.app.log("levelScreen","show");
-
-        this.scene = this.assetManager.get(this.levelFilePath, AshleyRubeScene.class);
-        this.world = this.scene.getWorld();
-        this.engine = this.scene.getEngine();
-
-//        this.img = this.assetManager.get("data/images/toyzrockinghorse.png",Texture.class);
-
-        this.engine.addSystem(this.renderingSystem);
+//        cam.onUpdate();
     }
 
     @Override
@@ -113,12 +147,14 @@ public class LevelScreen extends ScreenAdapter {
     public void pause() {
         super.pause();
         Gdx.app.log("levelScreen","pause");
+        this.hudSystem.show("pause");
     }
 
     @Override
     public void resume() {
         super.resume();
         Gdx.app.log("levelScreen","resume");
+        this.hudSystem.hide("pause");
     }
 
     @Override

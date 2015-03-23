@@ -1,25 +1,23 @@
 package com.makoware.framework.GUI.HUD;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.makoware.framework.Core.GameManager;
+import com.makoware.framework.Core.Messenger;
 import com.makoware.framework.GUI.Camera.MWCamera;
-import com.makoware.framework.Utils.Callback;
+import com.makoware.framework.Input.Handlers.InputHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class HUD {
 	private String tag = "HUD";
+
 	private HashMap<String,Overlay> overlays;
 	
 	private ArrayList<String> renderList;
-	
-//	public static Matrix4 hudMatrix = new Matrix4();
+
 	public static OrthographicCamera hudCam;
 	public static MWCamera camera;
 	
@@ -27,20 +25,9 @@ public class HUD {
 	public static int y;
 	public static int width;
 	public static int height;
-
-	public static NinePatch border;
-	
-	public static BitmapFont font;
-	private Texture fontTex;
-	
-	public static Texture arrow;
-
-    private AssetManager am;
 	
 	private int pauseCount = 0;
 
-	private Callback pause;
-	private Callback unpause;
 	private int iter;
 	
 	public HUD(){
@@ -60,6 +47,7 @@ public class HUD {
 //		this.font.setScale(0.1f);
 //		font.setScale(0.1f, 0.1f);
 //		font.setColor(Color.WHITE);
+        this.resize();
 	}
 	
 	public HUD(MWCamera cam){
@@ -67,15 +55,7 @@ public class HUD {
 		camera = cam;
 	}
 	
-	public void setPause(Callback pause){
-		this.pause = pause;
-	}
-	
-	public void setUnpause(Callback unpause){
-		this.unpause = unpause;
-	}
-	
-	public void draw(SpriteBatch batch){
+	public void draw(SpriteBatch batch, float deltaTime){
 		
 //		Iterator<String> itr = renderList.iterator();
 //		while(itr.hasNext()){
@@ -97,11 +77,11 @@ public class HUD {
 			
 			Overlay o = overlays.get(key);
 			if(o.isVisible()){
-				o.draw(batch);
+				o.draw(batch, deltaTime);
 			} else {
 //				o.onHide();
 				hide(key);
-				renderList.remove(iter);
+//				renderList.remove(iter);
 			}
 			
 			iter++;
@@ -113,30 +93,47 @@ public class HUD {
 	}
 	
 	public void show(String key){
-		show(key,null);
+		show(key, null);
 	}
 	
 	public void show(String key, OverlayParam p){
-		if(!overlays.get(key).isVisible())
+		Overlay o = overlays.get(key);
+		if(!o.isVisible())
 			renderList.add(key);
-		if(overlays.get(key).shouldPause()){
+		if(o.shouldPause()){
 //			Gdx.app.log(tag, "should pause");
-			if(pauseCount==0)
-				pause.call(null);
+            if(pauseCount==0) {
+                Messenger.postMessage(Messenger.PAUSE_KEY, null);
+            }
 			pauseCount++;
 		}
-		overlays.get(key).onShow(p);
+
+		o.setVisible(true);
+		if(o.requestsInput() && o instanceof InputHandler){
+			GameManager.getInput().pushHandler((InputHandler)o);
+		}
+
+		o.onShow(p);
 	}
 	
 	public void hide(String key){
 //		renderList.remove(key);
-		if(overlays.get(key).shouldPause()){
+		Overlay o = overlays.get(key);
+		if(o.shouldPause()){
 //			Gdx.app.log(tag, "should unpause");
 			pauseCount--;
-			if(pauseCount==0)
-				unpause.call(null);
+            if(pauseCount==0) {
+                Messenger.postMessage(Messenger.UNPAUSE_KEY, null);
+            }
 		}
-		overlays.get(key).onHide();
+
+		o.setVisible(false);
+		if(o.requestsInput() && o instanceof InputHandler){
+			GameManager.getInput().popHandler();
+		}
+
+		o.onHide();
+		renderList.remove(key);
 	}
 
 	public static void begin(SpriteBatch batch) {
@@ -167,5 +164,9 @@ public class HUD {
 	public static int height(){
 		return Gdx.graphics.getHeight();
 	}
+
+    public ArrayList<String> getRenderList() {
+        return renderList;
+    }
 }
 

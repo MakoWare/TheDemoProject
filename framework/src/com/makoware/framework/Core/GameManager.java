@@ -5,7 +5,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.*;
 import com.makoware.framework.GUI.HUD.HUD;
-import com.makoware.framework.Input.InputMethod;
+import com.makoware.framework.Input.Handlers.InputHandler;
+import com.makoware.framework.Input.Methods.InputMethod;
 
 /**
  * Created by Derek Arner on 2/26/15.
@@ -41,5 +42,13 @@ public enum GameManager {
 
     public static AssetManager getAssetManager() {
         return INSTANCE.assets;
+    }
+
+    public static void pushInputHandler(InputHandler handler){
+        INSTANCE.input.pushHandler(handler);
+    }
+
+    public static void popInputHandler(){
+        INSTANCE.input.popHandler();
     }
 }

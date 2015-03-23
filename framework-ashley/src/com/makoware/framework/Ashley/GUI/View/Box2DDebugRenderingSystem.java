@@ -1,24 +1,24 @@
-package com.makoware.framework.GUI.View;
+package com.makoware.framework.Ashley.GUI.View;
 
 import com.badlogic.ashley.core.EntitySystem;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
-import com.makoware.framework.GUI.Camera.MWCamera;
 
 /**
  * Created by Derek Arner on 3/2/15.
  */
-public class ViewSystem extends EntitySystem {
+public class Box2DDebugRenderingSystem extends EntitySystem {
 
-    private MWCamera camera;
+    private OrthographicCamera camera;
 
     private World world;
     private Box2DDebugRenderer debugRenderer;
 
-    public ViewSystem() {
-        this.camera = new MWCamera();
-        this.world = new World(new Vector2(0f,-1f),true);
+    public Box2DDebugRenderingSystem(World world, OrthographicCamera camera) {
+        this.priority = 45;
+        this.world = world;
+        this.camera = camera;
         this.debugRenderer = new Box2DDebugRenderer();
     }
 
@@ -29,5 +29,9 @@ public class ViewSystem extends EntitySystem {
         this.debugRenderer.render(this.world, this.camera.combined);
 
 
+    }
+
+    public void toggleDebug(){
+        this.setProcessing(!this.checkProcessing());
     }
 }
